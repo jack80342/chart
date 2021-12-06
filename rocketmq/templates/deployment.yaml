@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rocketmq.fullname" . }}
+  labels:
+    {{- include "rocketmq.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "rocketmq.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "rocketmq.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: broker
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        command: ["sh","mqbroker", "-n","localhost:9876"]
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 10909
+          - containerPort: 10911
+        volumeMounts:
+          - mountPath: /home/rocketmq/logs
+            name: brokeroptlogs
+          - mountPath: /home/rocketmq/store
+            name: brokeroptstore
+      - name: namesrv
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        command: ["sh","mqnamesrv"]
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9876
+        volumeMounts:
+          - mountPath: /home/rocketmq/logs
+            name: namesrvoptlogs
+      volumes:
+      - name: brokeroptlogs
+        hostPath:
+          path: /data/broker/logs
+      - name: brokeroptstore
+        hostPath:
+          path: /data/broker/store
+      - name: namesrvoptlogs
+        hostPath:
+          path: /data/namesrv/logs
+      - name: namesrvoptstore
+        hostPath:
+          path: /data/namesrv/store

@@ -1,0 +1,21 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "rocketmq.fullname" . }}-nodeport
+  labels:
+    {{- include "rocketmq.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: http1
+      protocol: TCP
+      port: 9876
+      targetPort: 9876
+      nodePort: 30407
+    - name: http2
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30003
+  type: NodePort
+  selector:
+    {{- include "rocketmq.selectorLabels" . | nindent 4 }}

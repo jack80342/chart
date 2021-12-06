@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "rocketmq.fullname" . }}-clusterip
+  labels:
+    {{- include "rocketmq.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: http1
+      protocol: TCP
+      port: 30921
+      targetPort: 30921
+  type: ClusterIP
+  externalIPs:
+    - 192.168.0.162
+  selector:
+    {{- include "rocketmq.selectorLabels" . | nindent 4 }}
