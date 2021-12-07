@@ -1,0 +1,19 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ include "rocketmq.fullname" . }}
+  labels:
+    {{- include "rocketmq.labels" . | nindent 4 }}
+spec:
+  capacity:
+    storage: 20Gi
+  nfs:
+    server: 192.168.0.144
+    path: >-
+      /data/appk8s/{{ include "rocketmq.fullname" . }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: nfs-provisioner
+  volumeMode: Filesystem
+
